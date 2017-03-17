@@ -28,6 +28,7 @@ class SpecParser:
     # lex part
     reserved = {
         'export': 'EXPORT',
+        'or' : 'PIPE',
         'list': 'LIST',
         'set': 'SET',
         'dict': 'DICT',
@@ -116,6 +117,7 @@ class SpecParser:
                 | RARRAY
                 | COLUMN
                 | COMMA
+                | PIPE
                 | DICT
                 | SET
                 | LIST
@@ -145,8 +147,13 @@ class SpecParser:
         p[0] = p[1] if len(p) == 2 else []
 
     def p_types(self, p):
-        '''types : type
-                 | type COMMA types'''
+        '''types : multitype
+                 | multitype COMMA types'''
+        p[0] = (p[1],) + (tuple() if len(p) == 2 else p[3])
+
+    def p_multitype(self, p):
+        '''multitype : type
+                     | type PIPE multitype'''
         p[0] = (p[1],) + (tuple() if len(p) == 2 else p[3])
 
     def p_type(self, p):
@@ -257,7 +264,8 @@ class SpecParser:
             import logging
             logging.warn("No pythran specification, "
                          "no function will be exported")
-        return self.exports
+        exports = multiexports_to_exports(self.exports)
+        return exports
 
 
 class PySpecParser(SpecParser):
@@ -319,6 +327,25 @@ def expand_specs(specs):
             expanded_signatures.extend(spec_expander(signature))
         all_specs[function] = tuple(expanded_signatures)
     return all_specs
+
+
+def multiexports_to_exports(exports):
+    def decompose(value, arr, new_array=[]):
+        if len(new_array) == len(value):
+            arr.append(new_array)
+            return
+        for elem in value[len(new_array)]:
+            a_array = list(new_array)
+            a_array.append(elem)
+            decompose(value, arr, a_array)
+
+    for key in exports:
+        new_value = []
+        for v in exports[key]:
+            decompose(v, new_value)
+        exports[key] = tuple(new_value)
+
+    return exports
 
 
 def specs_to_docstrings(specs, docstrings):
