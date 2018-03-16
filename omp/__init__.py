@@ -8,11 +8,12 @@ import sys
 
 try:
     # there may be an environ modification when loading config
-    from pythran.config import compiler
+    from pythran.config import compiler, compiler_executable
+    c_compiler = compiler()
+    cxx = compiler_executable(c_compiler.cxx_compiler())
 except ImportError:
-    def compiler():
-        return os.environ.get('CXX', 'c++')
-cxx = compiler()
+    c_compiler = None
+    cxx = os.environ.get('CXX', 'c++')
 
 
 class OpenMP(object):
@@ -25,6 +26,26 @@ class OpenMP(object):
     """
 
     def __init__(self):
+        if c_compiler is None or c_compiler.compiler_type != 'msvc':
+            self.init_not_msvc()
+        else:
+            self.init_msvc()
+
+    def init_msvc(self):
+        vcomp_path = None
+        for i in range(15, 8, -1):
+            vcomp_name = 'vcomp%d0.dll' % i
+            vcomp_path = find_library(vcomp_name)
+            if vcomp_path:
+                break
+        if not vcomp_path:
+            raise ImportError("I can't find a shared library for vcomp.")
+        else:
+            # Load the library (shouldn't fail with an absolute path right?)
+            self.libomp = ctypes.CDLL(vcomp_path)
+            self.version = 20
+
+    def init_not_msvc(self):
         """ Find OpenMP library and try to load if using ctype interface. """
         # find_library() does not search automatically LD_LIBRARY_PATH
         paths = os.environ.get('LD_LIBRARY_PATH', '').split(':')
@@ -57,6 +78,7 @@ class OpenMP(object):
         else:
             # Load the library (shouldn't fail with an absolute path right?)
             self.libomp = ctypes.CDLL(libgomp_path)
+            self.version = 45
 
     def __getattr__(self, name):
         """
@@ -65,6 +87,8 @@ class OpenMP(object):
         __getattr__ is call only `name != libomp` as libomp is a real
         attribute.
         """
+        if name == 'VERSION':
+            return self.version
         return getattr(self.libomp, 'omp_' + name)
 
 # see http://mail.python.org/pipermail/python-ideas/2012-May/014969.html

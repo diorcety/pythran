@@ -5,6 +5,7 @@ except ImportError:
     import ConfigParser as configparser
 import logging
 import numpy.distutils.system_info as numpy_sys
+from numpy.distutils.ccompiler import new_compiler
 import numpy
 import os
 import sys
@@ -98,9 +99,19 @@ def make_extension(**extra):
 
 
 def compiler():
-    """Get compiler to use for C++ to binary process."""
-    return os.environ.get('CXX', 'c++')
+    c = new_compiler()
+    if hasattr(c, 'initialize'):
+        c.initialize()
+    return c
 
+def compiler_executable(compiler):
+    if hasattr(compiler, 'cc'):
+        return compiler.cc
+    if 'compiler' in compiler.executables:
+        lst = compiler.executables['compiler']
+        if lst is not None and len(lst) > 0:
+            return lst[0]
+    raise Exception("Can't find compiler command for compiler %s" % (compiler))
 
 def have_gmp_support(**extra):
     """Check if the USE_GMP macro is defined."""
@@ -146,7 +157,7 @@ def run():
     extension = pythran.config.make_extension()
 
     if args.compiler:
-        output.append(os.environ.get('CXX', 'c++'))
+        output.append(compiler_executable(compiler().cxx_compiler()))
 
     if args.cflags:
         def fmt_define(define):
