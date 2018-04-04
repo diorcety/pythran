@@ -4434,6 +4434,32 @@ MODULES = {
             ),
         }
     },
+    "past": {
+        "builtins": {
+            "range": ConstFunctionIntr(
+                signature=Union[
+                    Fun[[int], List[int]],
+                    Fun[[int, int], List[int]],
+                    Fun[[int, int, int], List[int]],
+                ],
+                return_range_content=interval.range_values
+            ),
+            "xrange": ConstFunctionIntr(
+                signature=Union[
+                    Fun[[int], Generator[int]],
+                    Fun[[int, int], Generator[int]],
+                    Fun[[int, int, int], Generator[int]],
+                ],
+                return_range_content=interval.range_values
+            ),
+        }
+    },
+    "future": {
+        "utils": {
+        }
+    },
+    "six": {
+    },
     # conflicting method names must be listed here
     "__dispatch__": {
         "clear": MethodIntr(signature=Fun[[T0], None]),
@@ -4495,7 +4521,7 @@ if 'WindowsError' in sys.modules['builtins'].__dict__:
     MODULES['builtins']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
-for module_name in ["omp", "scipy.special", "scipy"]:
+for module_name in ["omp", "scipy.special", "scipy", "past", "future", "six"]:
     try:
         __import__(module_name)
     except ImportError:
