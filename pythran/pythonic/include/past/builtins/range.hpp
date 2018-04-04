@@ -1,0 +1,20 @@
+#ifndef PYTHONIC_INCLUDE_PAST_BUILTINS_RANGE_HPP
+#define PYTHONIC_INCLUDE_PAST_BUILTINS_RANGE_HPP
+
+#include "pythonic/include/__builtin__/range.hpp"
+
+PYTHONIC_NS_BEGIN
+namespace past
+{
+
+  namespace builtins
+  {
+    using xrange = __builtin__::range;
+
+    namespace functor = __builtin__::functor;
+  }
+
+}
+PYTHONIC_NS_END
+
+#endif
