@@ -660,11 +660,35 @@ class CxxFunction(ast.NodeVisitor):
             value=ast.Name('builtins', ast.Load(), None, None),
             attr='range', ctx=ast.Load()),
             args=AST_any(), keywords=[])
+        pattern_pb_range = ast.Call(func=ast.Attribute(
+            value=ast.Attribute(
+                value=ast.Name('__pythran_import_past',
+                               ast.Load(), None, None),
+                ctx=ast.Load(),
+                attr='builtins'),
+            attr='range', ctx=ast.Load()),
+            args=AST_any(), keywords=[])
+        pattern_b_range = ast.Call(func=ast.Attribute(
+            value=ast.Name('__pythran_import_builtins',
+                           ast.Load(), None, None),
+            attr='range', ctx=ast.Load()),
+            args=AST_any(), keywords=[])
+        pattern_pb_xrange = ast.Call(func=ast.Attribute(
+            value=ast.Attribute(
+                value=ast.Name('__pythran_import_past',
+                               ast.Load(), None, None),
+                ctx=ast.Load(),
+                attr='builtins'),
+            attr='xrange', ctx=ast.Load()),
+            args=AST_any(), keywords=[])
         is_assigned = set()
         for stmt in node.body:
             is_assigned.update({n.id for n in self.gather(IsAssigned, stmt)})
 
         nodes = ASTMatcher(pattern_range).search(node.iter)
+        nodes |= ASTMatcher(pattern_pb_range).search(node.iter)
+        nodes |= ASTMatcher(pattern_b_range).search(node.iter)
+        nodes |= ASTMatcher(pattern_pb_xrange).search(node.iter)
         if node.iter not in nodes or node.target.id in is_assigned:
             return False
 
