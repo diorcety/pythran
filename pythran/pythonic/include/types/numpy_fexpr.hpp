@@ -42,8 +42,8 @@ namespace types
     {
       return _shape;
     }
-    utils::shared_ref<raw_array<long>> indices;
-    long *buffer;
+    utils::shared_ref<raw_array<array<long, Arg::value>>> indices;
+    array<long, Arg::value> *buffer;
 
     numpy_fexpr() = default;
     numpy_fexpr(numpy_fexpr const &) = default;
@@ -53,11 +53,13 @@ namespace types
     numpy_fexpr(Arg const &arg, F const &filter);
 
     template <class FIter, class O>
-    void _copy_mask(FIter fiter, FIter fend, O &out, long &index,
+    void _copy_mask(FIter fiter, FIter fend, O &out,
+                    array<long, Arg::value> &index, int column,
                     utils::int_<1>);
 
     template <class FIter, class O, size_t N>
-    void _copy_mask(FIter fiter, FIter fend, O &out, long &index,
+    void _copy_mask(FIter fiter, FIter fend, O &out,
+                    array<long, Arg::value> &index, int column,
                     utils::int_<N>);
 
     template <class E>
@@ -100,8 +102,8 @@ namespace types
     iterator begin();
     iterator end();
 
-    dtype fast(long i) const;
-    dtype &fast(long i);
+    auto fast(long i) const -> decltype(arg.fast(buffer[i]));
+    auto fast(long i) -> decltype(arg.fast(buffer[i]));
 #ifdef USE_BOOST_SIMD
     using simd_iterator = const_simd_nditerator<numpy_fexpr>;
     using simd_iterator_nobroadcast = simd_iterator;
