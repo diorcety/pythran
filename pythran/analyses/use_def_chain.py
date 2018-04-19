@@ -74,7 +74,7 @@ class UseDefChain(FunctionAnalysis):
                 self.result[dep.id] = nx.DiGraph()
                 self.result[dep.id].add_node("D0", action="D", name=dep)
                 self.current_node[dep.id] = set(["D0"])
-            else:
+            elif dep.id in self.current_node:
                 # safe (?) guess: if the variable is already defined,
                 # mark it as updated
                 last_node = self.current_node[dep.id].pop()
