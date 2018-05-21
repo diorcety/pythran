@@ -41,7 +41,7 @@ def init_cfg(sys_file, platform_file, user_file):
     return cfgp
 
 
-def make_extension(**extra):
+def make_extension(generic, **extra):
     def parse_define(define):
         index = define.find('=')
         if index < 0:
@@ -66,7 +66,8 @@ def make_extension(**extra):
                             cfg.get('compiler', 'ldflags').split()],
     }
 
-    extension['define_macros'].append('ENABLE_PYTHON_MODULE')
+    if not generic:
+        extension['define_macros'].append('ENABLE_PYTHON_MODULE')
     extension['define_macros'].append(
         '__PYTHRAN__={}'.format(sys.version_info.major))
 
@@ -85,7 +86,8 @@ def make_extension(**extra):
         sys.stdout = sys.stderr
 
         # numpy specific
-        extension['include_dirs'].append(numpy.get_include())
+        if not generic:
+            extension['include_dirs'].append(numpy.get_include())
 
         # blas dependency
         user_blas = cfg.get('compiler', 'blas')
@@ -124,7 +126,7 @@ def have_gmp_support(**extra):
     """Check if the USE_GMP macro is defined."""
     return (sys.version_info.major != 3 and
             any("USE_GMP" == name
-                for name, _ in make_extension(**extra)["define_macros"]))
+                for name, _ in make_extension(False, **extra)["define_macros"]))
 
 
 # load platform specific configuration then user configuration
@@ -157,11 +159,14 @@ def run():
     parser.add_argument('--libs', action='store_true',
                         help='print linker flags')
 
+    parser.add_argument('--generic', action='store_true',
+                        help='don\t include python stuff')
+
     args = parser.parse_args(sys.argv[1:])
 
     output = []
 
-    extension = pythran.config.make_extension()
+    extension = pythran.config.make_extension(args.generic)
 
     if args.compiler:
         output.append(compiler_executable(compiler().cxx_compiler()))
@@ -177,18 +182,21 @@ def run():
                       for define in extension['define_macros'])
         output.extend(('-I' + include)
                       for include in extension['include_dirs'])
-        output.append('-I' + numpy.get_include())
-        output.append('-I' + distutils.sysconfig.get_python_inc())
+        if not args.generic:
+            output.append('-I' + numpy.get_include())
+            output.append('-I' + distutils.sysconfig.get_python_inc())
 
     if args.libs:
         output.extend(('-L' + include)
                       for include in extension['library_dirs'])
-        output.append('-L' + distutils.sysconfig.get_config_var('LIBPL'))
+        if not args.generic:
+            output.append('-L' + distutils.sysconfig.get_config_var('LIBPL'))
         output.extend(('-l' + include)
                       for include in extension['libraries'])
-        output.extend(distutils.sysconfig.get_config_var('LIBS').split())
-        output.append('-lpython' +
-                      distutils.sysconfig.get_config_var('VERSION'))
+        if not args.generic:
+            output.extend(distutils.sysconfig.get_config_var('LIBS').split())
+            output.append('-lpython' +
+                          distutils.sysconfig.get_config_var('VERSION'))
 
     if output:
         print(' '.join(output))

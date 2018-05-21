@@ -22,7 +22,7 @@ class PythranExtension(Extension):
     The compilation process ends up in a native Python module.
     '''
     def __init__(self, name, sources, *args, **kwargs):
-        kwargs.update(cfg.make_extension())
+        kwargs.update(cfg.make_extension(False))
         self._sources = sources
         Extension.__init__(self, name, sources, *args, **kwargs)
         self.__dict__.pop("sources", None)
