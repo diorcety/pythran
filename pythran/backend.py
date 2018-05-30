@@ -945,7 +945,7 @@ class CxxFunction(Backend):
 
     def visit_Str(self, node):
         quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')
-        return '"' + quoted + '"'
+        return 'std::string("' + quoted + '")'
 
     def visit_Attribute(self, node):
         obj, path = attr_to_path(node)
