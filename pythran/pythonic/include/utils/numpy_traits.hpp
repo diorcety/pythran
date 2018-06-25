@@ -6,28 +6,28 @@ namespace types
 {
 
   template <class T, size_t N>
-  class ndarray;
+  struct ndarray;
 
   template <class A>
-  class numpy_iexpr;
+  struct numpy_iexpr;
 
   template <class A, class F>
-  class numpy_fexpr;
+  struct numpy_fexpr;
 
   template <class A, class F>
-  class numpy_vexpr;
+  struct numpy_vexpr;
 
   template <class A, class... S>
-  class numpy_gexpr;
+  struct numpy_gexpr;
 
   template <class A>
-  class numpy_texpr;
+  struct numpy_texpr;
 
   template <class A>
-  class numpy_texpr_2;
+  struct numpy_texpr_2;
 
   template <class O, class... Args>
-  class numpy_expr;
+  struct numpy_expr;
 
   template <class T>
   class list;
@@ -35,7 +35,7 @@ namespace types
   template <class T, class S>
   class sliced_list;
 
-  class empty_list;
+  struct empty_list;
 
   template <class T, size_t N>
   struct array;
