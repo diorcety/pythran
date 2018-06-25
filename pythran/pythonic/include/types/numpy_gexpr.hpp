@@ -307,6 +307,10 @@ namespace types
                          typename std::tuple_element<Is, S>::type>::type...>
     _make_gexpr_helper(Arg arg, S const &s, utils::index_sequence<Is...>);
 
+    template <class Arg, size_t... Is, class... S>
+    numpy_gexpr<Arg, normalize_t<S>...>
+    _make_gexpr_helper2(Arg arg, utils::index_sequence<Is...>, S const &... s);
+
     template <class Arg, class... Sp>
     auto _make_gexpr(Arg arg, std::tuple<Sp...> const &s) ->
         typename std::enable_if<
@@ -542,6 +546,9 @@ namespace types
                            typename std::tuple_element<Is, _S>::type>::type...>
     details::_make_gexpr_helper(_Arg arg, _S const &s,
                                 utils::index_sequence<Is...>);
+    template <class _Arg, size_t... Is, class... _S>
+    friend numpy_gexpr<_Arg, normalize_t<_S>...>
+    details::_make_gexpr_helper2(_Arg arg, utils::index_sequence<Is...>, _S const &... s);
 
     template <size_t C>
     friend struct extended_slice;

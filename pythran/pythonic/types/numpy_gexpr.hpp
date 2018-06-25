@@ -368,6 +368,13 @@ namespace types
                   std::get<Is>(s))...};
     }
 
+    template <class Arg, size_t... Is, class... S>
+    numpy_gexpr<Arg, normalize_t<S>...>
+    _make_gexpr_helper2(Arg arg, utils::index_sequence<Is...>, S const &... s)
+    {
+      return {arg, normalize(s, arg.shape()[Is])...};
+    }
+
     template <class Arg, class... Sp>
     auto _make_gexpr(Arg arg, std::tuple<Sp...> const &s) ->
         typename std::enable_if<
@@ -390,8 +397,10 @@ namespace types
     numpy_gexpr<Arg, normalize_t<S>...> make_gexpr<Arg, S...>::
     operator()(Arg arg, S const &... s)
     {
-      int i = 0;
-      return {arg, normalize(s, arg.shape()[i++])...};
+      return _make_gexpr_helper2<Arg>(
+          std::forward<Arg>(arg),
+          utils::make_index_sequence<sizeof...(S)>(),
+          s...);
     }
 
     // this specialization is in charge of merging gexpr
