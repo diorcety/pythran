@@ -23,6 +23,7 @@ import pythran.frontend as frontend
 
 from datetime import datetime
 from distutils.errors import CompileError
+from distutils import sysconfig
 from numpy.distutils.core import setup
 from numpy.distutils.extension import Extension
 import numpy.distutils.ccompiler
@@ -347,11 +348,18 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     except SystemExit as e:
         raise CompileError(str(e))
 
-    target, = glob.glob(os.path.join(builddir, module_name + "*"))
-    if not output_binary:
-        output_binary = os.path.join(os.getcwd(),
-                                     module_name + os.path.splitext(target)[1])
-    shutil.move(target, output_binary)
+    ext = sysconfig.get_config_var('SO')
+    for f in glob.glob(os.path.join(builddir, module_name + "*")):
+        if f.endswith(ext):
+            if not output_binary:
+                output_binary = os.path.join(os.getcwd(), module_name + ext)
+            shutil.move(f, output_binary)
+        else:
+            if not output_binary:
+                output_directory = os.getcwd()
+            else:
+                output_directory = os.path.dirname(output_binary)
+            shutil.move(f, os.path.join(output_directory, os.path.basename(f)))
     shutil.rmtree(builddir)
     shutil.rmtree(buildtmp)
 
