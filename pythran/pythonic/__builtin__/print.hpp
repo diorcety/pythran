@@ -33,23 +33,23 @@ namespace __builtin__
   template <typename T, typename... Types>
   void print_nonl(T const &value, Types const &... values)
   {
-    details::print(std::cout, value);
+    details::print(std::cerr, value);
     if (sizeof...(Types) > 0)
-      std::cout << ' ';
+      std::cerr << ' ';
     print_nonl(values...);
   }
 
   void print()
   {
-    std::cout << std::endl;
+    std::cerr << std::endl;
   }
 
   template <typename T, typename... Types>
   void print(T const &value, Types const &... values)
   {
-    details::print(std::cout, value);
+    details::print(std::cerr, value);
     if (sizeof...(values) > 0)
-      std::cout << ' ';
+      std::cerr << ' ';
     print(values...);
   }
   DEFINE_FUNCTOR(pythonic::__builtin__, print);
