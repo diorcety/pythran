@@ -127,11 +127,14 @@ namespace utils
   void shared_ref<T>::dispose()
   {
     if (mem && --mem->count == 0) {
-#ifdef ENABLE_PYTHON_MODULE
       if (mem->foreign) {
+#ifdef ENABLE_PYTHON_MODULE
         Py_DECREF(mem->foreign);
-      }
+#else
+        mem->foreign();
+        mem->foreign = nullptr;
 #endif
+      }
       delete mem;
       mem = nullptr;
     }

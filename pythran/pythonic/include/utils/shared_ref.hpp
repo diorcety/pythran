@@ -9,13 +9,15 @@
 #endif
 #ifdef ENABLE_PYTHON_MODULE
 #include <Python.h>
+#else
+#include <functional>
 #endif
 
 PYTHONIC_NS_BEGIN
 #ifdef ENABLE_PYTHON_MODULE
 using extern_type = PyObject *;
 #else
-using extern_type = void *;
+using extern_type = ::std::function<void(void)>;
 #endif
 
 #ifdef _OPENMP
