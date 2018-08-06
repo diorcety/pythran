@@ -15,7 +15,8 @@ PYTHONIC_NS_BEGIN
 #ifdef ENABLE_PYTHON_MODULE
 using extern_type = PyObject *;
 #else
-using extern_type = void *;
+#include <functional>
+using extern_type = ::std::function<void()>;
 #endif
 
 #ifdef _OPENMP
