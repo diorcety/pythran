@@ -9,13 +9,13 @@ from collections import defaultdict
 import os.path
 import os
 
-from distutils.command.build_ext import build_ext as LegacyBuildExt
+from setuptools.command.build_ext import build_ext as LegacyBuildExt
 
 from numpy.distutils.extension import Extension
 
 
 class PythranBuildExt(LegacyBuildExt, object):
-    """Subclass of `distutils.command.build_ext.build_ext` which is required to
+    """Subclass of `setuptools.command.build_ext.build_ext` which is required to
     build `PythranExtension` with the configured C++ compiler. It may also be
     subclassed if you want to combine with another build_ext class (NumPy,
     Cython implementations).
