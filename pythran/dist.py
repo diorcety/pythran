@@ -87,7 +87,8 @@ class PythranExtension(Extension):
 
     def __init__(self, name, sources, *args, **kwargs):
         cfg_ext = cfg.make_extension(python=True, **kwargs)
-        self.cxx = cfg_ext.pop('cxx')
+        if 'cxx' in cfg_ext:
+            self.cxx = cfg_ext.pop('cxx')
         self._sources = sources
         Extension.__init__(self, name, sources, *args, **cfg_ext)
         self.__dict__.pop("sources", None)
