@@ -18,9 +18,11 @@ def init_cfg(sys_file, platform_file, user_file):
 
     platform_config_path = os.path.join(sys_config_dir, platform_file)
 
-    user_config_dir = os.environ.get('XDG_CONFIG_HOME', '~')
-    user_config_path = os.path.expanduser(
-        os.path.join(user_config_dir, user_file))
+    user_config_path = os.environ.get('PYTHRANRC', None)
+    if not user_config_path:
+        user_config_dir = os.environ.get('XDG_CONFIG_HOME', '~')
+        user_config_path = os.path.expanduser(
+            os.path.join(user_config_dir, user_file))
 
     cfgp = configparser.SafeConfigParser()
     for required in (sys_config_path, platform_config_path):
