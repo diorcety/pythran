@@ -1,5 +1,5 @@
 from test_env import TestEnv
-from pythran.typing import List, NDArray
+from pythran.typing import List, Tuple, NDArray
 import numpy as np
 
 class TestList(TestEnv):
@@ -82,6 +82,13 @@ class TestList(TestEnv):
         self.run_test('def slice_get_item_assign(x): y = x[:]; y.remove(0); return x, y',
                       [0, 1,2,3],
                       slice_get_item_assign=[List[int]])
+
+    def test_transposed_slice_assign(self):
+        self.run_test("""def transposed_slice_assign(shape):
+    import numpy as np
+    xx = np.empty(shape, dtype=int)
+    xx.T[:] = np.arange(0, shape[0], 1, dtype=int)
+    return xx""", (3, 3), transposed_slice_assign=[Tuple[int, int]])
 
     def test_init_array_empty_list(self):
         code = '''
