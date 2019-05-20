@@ -43,6 +43,11 @@ def get_paths_cfg(
             os.path.join(user_config_dir, user_file))
     return {"sys": sys_config_path, "platform": platform_config_path, "user": user_config_path}
 
+def get_boost_dir():
+    if 'BOOST_DIR' in os.environ:
+        return os.path.join(os.environ['BOOST_DIR'], 'include')
+    return None
+
 
 def init_cfg(sys_file, platform_file, user_file):
     paths = get_paths_cfg(sys_file, platform_file, user_file)
@@ -158,7 +163,12 @@ def make_extension(python, **extra):
     try:
         sys.stdout = sys.stderr
 
-        # numpy specific
+        # Boost
+        boost_dir = get_boost_dir()
+        if boost_dir:
+            extension['include_dirs'].append(boost_dir)
+
+        # Python
         if python:
             extension['include_dirs'].append(numpy.get_include())
 
@@ -287,6 +297,13 @@ def run():
                       for define in extension['define_macros'])
         cflags.extend(('-I' + include)
                       for include in extension['include_dirs'])
+
+        # Boost
+        boost_dir = get_boost_dir()
+        if boost_dir:
+            cflags.append('-I' + boost_dir)
+
+        # Python
         if args.python:
             cflags.append('-I' + numpy.get_include())
             cflags.append('-I' + distutils.sysconfig.get_python_inc())
