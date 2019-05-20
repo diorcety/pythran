@@ -66,7 +66,7 @@ class BuildWithThirdParty(build_py):
     * install xsimd dependencies
     """
 
-    third_parties = 'boost', 'xsimd'
+    third_parties = 'xsimd',
 
     user_options = build_py.user_options + [
         ('no-{}'.format(pkg), None, 'Do not distribute {} headers'.format(pkg))
