@@ -1,7 +1,7 @@
-ply>=3.4
-networkx>=2
+ply==3.11
+networkx==2.4
 decorator
-gast~=0.3.3
+gast==0.3.3
 six
 numpy
-beniget~=0.2.1
+beniget==0.2.2
