@@ -765,13 +765,6 @@ namespace std
   }
 
   template <size_t I, class T>
-  typename pythonic::types::list<T>::const_reference
-  get(pythonic::types::list<T> const &t)
-  {
-    return t[I];
-  }
-
-  template <size_t I, class T>
   typename pythonic::types::list<T>::value_type
   get(pythonic::types::list<T> &&t)
   {
@@ -781,13 +774,6 @@ namespace std
   template <size_t I, class T, class S>
   typename pythonic::types::sliced_list<T, S>::reference
   get(pythonic::types::sliced_list<T, S> &t)
-  {
-    return t[I];
-  }
-
-  template <size_t I, class T, class S>
-  typename pythonic::types::sliced_list<T, S>::const_reference
-  get(pythonic::types::sliced_list<T, S> const &t)
   {
     return t[I];
   }
