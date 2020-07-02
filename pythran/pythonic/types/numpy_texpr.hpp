@@ -180,7 +180,7 @@ namespace types
                   ndarray<long, pshape<long>>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
-    return numpy::functor::array{}(*this)
+    return static_cast<ndarray<typename numpy_texpr_2<E>::dtype, typename numpy_texpr_2<E>::shape_t>>(numpy::functor::array{}(*this))
         .flat()[ndarray<typename F::dtype, typename F::shape_t>(filter).flat()];
   }
 
