@@ -388,3 +388,22 @@ def combiner_on_empty_list():
             def static_list4(x):
                 return StridedSlice(x,np.array([0,2,3]), np.array([5,0,7]), [1,1,1])'''
         self.run_test(code, numpy.arange(1000).reshape(10,10,10), static_list4=[NDArray[int, :,:,:]])
+
+    def test_global_effects_partial0(self):
+        code = '''
+g = [1, 2]
+
+def return_partial(x):
+    def partial(_):
+        return x
+
+    return partial
+
+def call_partial(fct):
+    return return_partial(fct)
+
+all_commands = call_partial(g)
+
+def global_effects_partial0(l):
+    return all_commands(l)'''
+        self.run_test(code, 3, global_effects_partial0=[int])

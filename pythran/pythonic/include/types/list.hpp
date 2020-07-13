@@ -160,6 +160,9 @@ namespace types
     template <class vectorizer>
     simd_iterator vend(vectorizer) const;
 #endif
+    template <class Tp, class Sp>
+    friend std::ostream &operator<<(std::ostream &os,
+                                    sliced_list<Tp, Sp> const &v);
   };
 
   /* list */
@@ -344,6 +347,15 @@ namespace types
     {
       shape_t res;
       details::init_shape(res, *this, utils::int_<value>{});
+      return res;
+    }
+
+    template <class Tp, size_t N, class V>
+    operator array_base<Tp, N, V>() const
+    {
+      assert(size() == N && "consistent size");
+      array_base<Tp, N, V> res;
+      std::copy(begin(), end(), res.begin());
       return res;
     }
   };
