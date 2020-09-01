@@ -257,6 +257,7 @@ def run():
     Dump on stdout the config flags required to compile pythran-generated code.
     '''
     import argparse
+    import distutils.ccompiler
     import distutils.sysconfig
     import pythran
     import numpy
@@ -308,6 +309,9 @@ def run():
         if args.compiler:
             output.append(cxx)
 
+    compiler_obj = distutils.ccompiler.new_compiler()
+    distutils.sysconfig.customize_compiler(compiler_obj)
+
     if args.cflags or args.verbose >= 2:
         def fmt_define(define):
             name, value = define
@@ -338,15 +342,15 @@ def run():
 
     if args.libs or args.verbose >= 2:
         ldflags = []
-        ldflags.extend(('-L' + include)
+        ldflags.extend((compiler_obj.library_dir_option(include))
                        for include in extension['library_dirs'])
-        ldflags.extend(('-l' + include)
+        ldflags.extend((compiler_obj.library_option(include))
                        for include in extension['libraries'])
 
         if args.python:
-            ldflags.append('-L' + distutils.sysconfig.get_config_var('LIBPL'))
+            ldflags.append(compiler_obj.library_dir_option(distutils.sysconfig.get_config_var('LIBPL')))
             ldflags.extend(distutils.sysconfig.get_config_var('LIBS').split())
-            ldflags.append('-lpython'
+            ldflags.append(compiler_obj.library_option('python')
                            + distutils.sysconfig.get_config_var('VERSION'))
 
         logger.info('LDFLAGS = '.rjust(10) + ' '.join(ldflags))
